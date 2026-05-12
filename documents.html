@@ -61,6 +61,13 @@ body{font-family:var(--font-body);background:var(--gray1);color:var(--navy);min-
 
 /* SECTION HEADERS */
 .section-bar{background:var(--navy);color:var(--white);padding:8px 14px;border-radius:var(--radius);margin:16px 0 12px;font-family:var(--font-head);font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:8px}
+.collapsible-header{background:var(--gray1);border:1px solid var(--gray2);border-radius:var(--radius);padding:10px 14px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;user-select:none;}
+.collapsible-header:hover{background:var(--gray2);}
+.collapsible-header .ch-title{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:0.8px;display:flex;align-items:center;gap:8px;}
+.collapsible-header .ch-arrow{font-size:12px;color:var(--gray4);transition:transform 0.2s;}
+.collapsible-header.open .ch-arrow{transform:rotate(180deg);}
+.collapsible-body{display:none;padding:12px;background:var(--gray1);border:1px solid var(--gray2);border-top:none;border-radius:0 0 var(--radius) var(--radius);margin-bottom:12px;}
+.collapsible-body.open{display:block;}
 .section-bar i{color:var(--gold);font-size:15px}
 
 /* FORMS */
@@ -316,9 +323,12 @@ textarea.form-control{resize:vertical;min-height:70px}
     <div class="section-bar"><i class="ti ti-users"></i> Emergency Contacts</div>
     <div class="alert alert-info mb-12"><i class="ti ti-info-circle"></i><span>C.T. Purcell standard contacts are pre-loaded. Add project-specific contacts below.</span></div>
 
-    <!-- Fixed CTP Contacts -->
-    <div style="background:var(--gray1);border-radius:var(--radius);padding:12px;margin-bottom:12px">
-      <div style="font-size:11px;font-weight:700;color:var(--gray5);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:10px">C.T. Purcell Standard Contacts (Pre-Loaded)</div>
+    <!-- Fixed CTP Contacts - Collapsible -->
+    <div class="collapsible-header" onclick="toggleCollapse('ctp-contacts',this)">
+      <div class="ch-title"><i class="ti ti-address-book" style="color:var(--gold)"></i> CTP Standard Contacts (Pre-Loaded — tap to view)</div>
+      <span class="ch-arrow">▼</span>
+    </div>
+    <div class="collapsible-body" id="ctp-contacts">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
         <tr style="border-bottom:1px solid var(--gray2)"><td style="padding:7px 4px;font-weight:600">Bobby Powers – PM</td><td style="padding:7px 4px;text-align:right;color:var(--blue);white-space:nowrap">(804) 640-5181</td></tr>
         <tr style="border-bottom:1px solid var(--gray2)"><td style="padding:7px 4px;font-weight:600">Charles "Tup" Purcell – VP</td><td style="padding:7px 4px;text-align:right;color:var(--blue);white-space:nowrap">(804) 512-5447</td></tr>
@@ -394,8 +404,13 @@ textarea.form-control{resize:vertical;min-height:70px}
       </div>
     </div>
 
-    <!-- RAR Reference -->
-    <div class="rar-matrix">
+    <!-- RAR Reference - Collapsible -->
+    <div class="collapsible-header" onclick="toggleCollapse('rar-ref',this)">
+      <div class="ch-title"><i class="ti ti-chart-bar" style="color:var(--gold)"></i> RAR Risk Reference Chart (tap to view)</div>
+      <span class="ch-arrow">▼</span>
+    </div>
+    <div class="collapsible-body" id="rar-ref">
+<div class="rar-matrix">
       <div class="rar-title">Risk Assessment Rating (RAR) Reference</div>
       <div class="rar-scale">
         <span class="rar-key rar-low">0–5 Low Risk</span>
@@ -405,8 +420,8 @@ textarea.form-control{resize:vertical;min-height:70px}
       </div>
       <div style="font-size:11px;color:var(--gray5);margin-top:6px">RAR = Likelihood (1-5) × Severity (1-5) &nbsp;|&nbsp; Likelihood: Rare=1, Unlikely=2, Occasional=3, Likely=4, Almost Certain=5 &nbsp;|&nbsp; Severity: Insignificant=1, Minor=2, Moderate=3, Major=4, Catastrophic=5</div>
     </div>
-
-    <div class="section-bar"><i class="ti ti-list-details"></i> Job Steps, Hazards & Controls</div>
+    </div>
+        <div class="section-bar"><i class="ti ti-list-details"></i> Job Steps, Hazards & Controls</div>
     <div id="taha-steps"></div>
     <button class="btn btn-outline btn-sm mt-8" onclick="addTahaStep()"><i class="ti ti-plus"></i> Add Step</button>
 
@@ -420,7 +435,12 @@ textarea.form-control{resize:vertical;min-height:70px}
       </div>
     </div>
 
-    <div class="section-bar"><i class="ti ti-shield"></i> Required PPE</div>
+    <div class="collapsible-header open" onclick="toggleCollapse('taha-ppe-section',this)">
+      <div class="ch-title"><i class="ti ti-shield" style="color:var(--gold)"></i> Required PPE (tap to expand)</div>
+      <span class="ch-arrow">▼</span>
+    </div>
+    <div class="collapsible-body open" id="taha-ppe-section">
+
     <div class="check-grid" id="taha-ppe-grid">
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Hard Hat" style="display:none"> Hard Hat</label>
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Safety Glasses" style="display:none"> Safety Glasses</label>
@@ -438,8 +458,14 @@ textarea.form-control{resize:vertical;min-height:70px}
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Rubber Boots" style="display:none"> Rubber Boots</label>
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
     </div>
+    </div>
 
-    <div class="section-bar"><i class="ti ti-tools"></i> Required Equipment & Tools</div>
+    <div class="collapsible-header open" onclick="toggleCollapse('taha-equip-section',this)">
+      <div class="ch-title"><i class="ti ti-tools" style="color:var(--gold)"></i> Required Equipment & Tools (tap to expand)</div>
+      <span class="ch-arrow">▼</span>
+    </div>
+    <div class="collapsible-body open" id="taha-equip-section">
+
     <div class="check-grid" id="taha-equip-grid">
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Excavator" style="display:none"> Excavator</label>
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Dozer" style="display:none"> Dozer</label>
@@ -458,6 +484,7 @@ textarea.form-control{resize:vertical;min-height:70px}
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Pump" style="display:none"> Pump</label>
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Laser Level" style="display:none"> Laser Level</label>
       <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
+    </div>
     </div>
 
     <div class="section-bar"><i class="ti ti-certificate"></i> Required Training & Certifications</div>
@@ -600,6 +627,13 @@ async function init() {
     await loadDocuments();
     setConn(true);
   } catch(e){ setConn(false); showToast('Connection error','danger'); }
+}
+
+function toggleCollapse(id, header) {
+  var body = document.getElementById(id);
+  var isOpen = body.classList.contains('open');
+  body.classList.toggle('open', !isOpen);
+  header.classList.toggle('open', !isOpen);
 }
 
 function setConn(up){
