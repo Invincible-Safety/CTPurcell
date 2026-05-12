@@ -422,26 +422,58 @@ textarea.form-control{resize:vertical;min-height:70px}
 
     <div class="section-bar"><i class="ti ti-shield"></i> Required PPE</div>
     <div class="check-grid" id="taha-ppe-grid">
-      ${['Hard Hat','Safety Glasses','High-Vis Vest','High-Vis Pants','Steel-Toe Boots','Cut-Resistant Gloves','N95 Respirator','Face Shield','Harness & Lanyard','Hearing Protection','Welding Leathers','Welding Gloves','Chemical Gloves','Rubber Boots','Other'].map(p=>`
-      <label class="check-item" onclick="toggleCheck(this)">
-        <input type="checkbox" value="${p}" style="display:none"> ${p}
-      </label>`).join('')}
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Hard Hat" style="display:none"> Hard Hat</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Safety Glasses" style="display:none"> Safety Glasses</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="High-Vis Vest" style="display:none"> High-Vis Vest</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="High-Vis Pants" style="display:none"> High-Vis Pants</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Steel-Toe Boots" style="display:none"> Steel-Toe Boots</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Cut-Resistant Gloves" style="display:none"> Cut-Resistant Gloves</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="N95 Respirator" style="display:none"> N95 Respirator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Face Shield" style="display:none"> Face Shield</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Harness & Lanyard" style="display:none"> Harness & Lanyard</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Hearing Protection" style="display:none"> Hearing Protection</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Welding Leathers" style="display:none"> Welding Leathers</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Welding Gloves" style="display:none"> Welding Gloves</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Chemical Gloves" style="display:none"> Chemical Gloves</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Rubber Boots" style="display:none"> Rubber Boots</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
     </div>
 
     <div class="section-bar"><i class="ti ti-tools"></i> Required Equipment & Tools</div>
     <div class="check-grid" id="taha-equip-grid">
-      ${['Excavator','Dozer','Compact Track Loader','Dump Truck','Roller','Forklift','Aerial Lift','Crane','Generator','Circular Saw','Sawzall','Angle Grinder','GFCI Pigtail','Air Compressor','Pump','Laser Level','Other'].map(e=>`
-      <label class="check-item" onclick="toggleCheck(this)">
-        <input type="checkbox" value="${e}" style="display:none"> ${e}
-      </label>`).join('')}
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Excavator" style="display:none"> Excavator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Dozer" style="display:none"> Dozer</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Compact Track Loader" style="display:none"> Compact Track Loader</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Dump Truck" style="display:none"> Dump Truck</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Roller" style="display:none"> Roller</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Forklift" style="display:none"> Forklift</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Aerial Lift" style="display:none"> Aerial Lift</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Crane" style="display:none"> Crane</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Generator" style="display:none"> Generator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Circular Saw" style="display:none"> Circular Saw</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Sawzall" style="display:none"> Sawzall</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Angle Grinder" style="display:none"> Angle Grinder</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="GFCI Pigtail" style="display:none"> GFCI Pigtail</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Air Compressor" style="display:none"> Air Compressor</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Pump" style="display:none"> Pump</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Laser Level" style="display:none"> Laser Level</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
     </div>
 
     <div class="section-bar"><i class="ti ti-certificate"></i> Required Training & Certifications</div>
     <div class="check-grid">
-      ${['OSHA 10','OSHA 30','CPR / First Aid','Competent Equipment Operator','Confined Space Entry','Fall Protection','Excavation Competent Person','Hazcom / SDS','Rigging & Signaling','Forklift Operator','Aerial Lift Operator','Other'].map(t=>`
-      <label class="check-item" onclick="toggleCheck(this)">
-        <input type="checkbox" value="${t}" style="display:none"> ${t}
-      </label>`).join('')}
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="OSHA 10" style="display:none"> OSHA 10</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="OSHA 30" style="display:none"> OSHA 30</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="CPR / First Aid" style="display:none"> CPR / First Aid</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Competent Equipment Operator" style="display:none"> Competent Equipment Operator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Confined Space Entry" style="display:none"> Confined Space Entry</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Fall Protection" style="display:none"> Fall Protection</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Excavation Competent Person" style="display:none"> Excavation Competent Person</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Hazcom / SDS" style="display:none"> Hazcom / SDS</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Rigging & Signaling" style="display:none"> Rigging & Signaling</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Forklift Operator" style="display:none"> Forklift Operator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Aerial Lift Operator" style="display:none"> Aerial Lift Operator</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
     </div>
 
     <div class="section-bar"><i class="ti ti-users"></i> Personnel Attending</div>
@@ -510,10 +542,14 @@ textarea.form-control{resize:vertical;min-height:70px}
 
     <div class="section-bar"><i class="ti ti-certificate"></i> Operator Credentials Required</div>
     <div class="check-grid">
-      ${['Experience','Authorized by C.T. Purcell','Company Safety Orientation','Manufacturer Safety Recommendations','OSHA 10','OSHA 30','Equipment Certification','Other'].map(c=>`
-      <label class="check-item" onclick="toggleCheck(this)">
-        <input type="checkbox" value="${c}" style="display:none"> ${c}
-      </label>`).join('')}
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Experience" style="display:none"> Experience</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Authorized by C.T. Purcell" style="display:none"> Authorized by C.T. Purcell</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Company Safety Orientation" style="display:none"> Company Safety Orientation</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Manufacturer Safety Recommendations" style="display:none"> Manufacturer Safety Recommendations</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="OSHA 10" style="display:none"> OSHA 10</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="OSHA 30" style="display:none"> OSHA 30</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Equipment Certification" style="display:none"> Equipment Certification</label>
+      <label class="check-item" onclick="toggleCheck(this)"><input type="checkbox" value="Other" style="display:none"> Other</label>
     </div>
 
     <div class="section-bar"><i class="ti ti-list-details"></i> Job Steps, Hazards & Recommended Actions</div>
