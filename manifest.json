@@ -1,0 +1,13 @@
+{
+  "name": "Invincible Safety Management",
+  "short_name": "Invincible Safety",
+  "description": "C.T. Purcell, Inc. Safety Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1b2a",
+  "theme_color": "#0d1b2a",
+  "icons": [
+    {"src": "icon_192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icon_512.png", "sizes": "512x512", "type": "image/png"}
+  ]
+}
