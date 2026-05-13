@@ -214,6 +214,8 @@ function signOut() {
   window.location.href = 'login.html?signout=1';
 }
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.6.0/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body>
 
@@ -388,9 +390,25 @@ function signOut() {
     <div id="summary-deficiencies"></div>
     <div id="summary-corrected"></div>
   </div>
-  <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap">
+  <!-- Inspector Signature -->
+  <div class="card" style="margin-top:14px;padding:16px;">
+    <div style="font-size:12px;font-weight:700;color:#0d1b2a;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;">
+      ✍ Inspector Signature Required
+    </div>
+    <div style="font-size:11px;color:#7a9ab8;margin-bottom:10px;">Sign below to certify this audit is accurate and complete per 29 CFR 1926.20.</div>
+    <canvas id="sigCanvas" width="600" height="150"
+      style="border:1.5px solid #d5dee6;border-radius:8px;width:100%;touch-action:none;background:white;display:block;cursor:crosshair;">
+    </canvas>
+    <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+      <button class="btn btn-outline btn-sm" onclick="clearSig()" style="padding:6px 12px;font-size:12px;">Clear</button>
+      <span style="font-size:11px;color:#95a5a6;">Draw your signature with finger or mouse</span>
+    </div>
+  </div>
+
+  <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;">
     <button class="btn btn-outline" onclick="location.reload()"><i class="ti ti-refresh"></i> New Audit</button>
-    <button class="btn btn-gold" id="submit-btn" onclick="submitAudit()"><i class="ti ti-device-floppy"></i> Save Audit to Database</button>
+    <button class="btn btn-outline" onclick="exportAuditPDF()" style="color:#c0392b;border-color:#c0392b;"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
+    <button class="btn btn-gold" id="submit-btn" onclick="submitAudit()"><i class="ti ti-device-floppy"></i> Save & Sign Audit</button>
   </div>
 </div>
 
@@ -426,12 +444,12 @@ async function dbPost(table, body) {
 // ============================================================
 const OSHA_CATEGORIES = [
   {
-    id:'fall', name:'Fall Protection', ref:'29 CFR 1926.500–503 / 16VAC25-175', active:true,
+    id:'fall', name:'Fall Protection', ref:'29 CFR 1926.500-503', active:true,
     questions:[
       {id:'fall1', text:'All floor openings, holes, and skylights are covered or guarded.', ref:'1926.502(a)'},
       {id:'fall2', text:'Leading edges protected by guardrails, safety nets, or personal fall arrest systems.', ref:'1926.502(b)'},
       {id:'fall3', text:'Guardrails are 42" high (±3") with mid-rail and toeboard where required.', ref:'1926.502(b)(1)'},
-      {id:'fall4', text:'All workers at 6 ft or more above lower level are protected. (VA OSHA: 6 ft for construction)', ref:'16VAC25-175-1926.501'},
+      {id:'fall4', text:'All workers at 6 ft or more above lower level are protected per 29 CFR 1926.501.', ref:'29 CFR 1926.501'},
       {id:'fall5', text:'Personal fall arrest systems inspected and in good condition.', ref:'1926.502(d)'},
       {id:'fall6', text:'Ladders secured at top and bottom; extend 3 ft above landing.', ref:'1926.1053'},
       {id:'fall7', text:'Workers trained on fall hazards and protection systems.', ref:'1926.503'},
@@ -474,9 +492,9 @@ const OSHA_CATEGORIES = [
     ]
   },
   {
-    id:'excavation', name:'Excavation & Trenching', ref:'29 CFR 1926.650–652 / 16VAC25-175', active:true,
+    id:'excavation', name:'Excavation & Trenching', ref:'29 CFR 1926.650-652', active:true,
     questions:[
-      {id:'ex1', text:'Soil classified by competent person before work begins.', ref:'16VAC25-175-1926.652'},
+      {id:'ex1', text:'Soil classified by competent person before work begins.', ref:'29 CFR 1926.652'},
       {id:'ex2', text:'Excavations properly sloped, shored, or shielded.', ref:'1926.652(a)'},
       {id:'ex3', text:'Competent person inspects excavation daily and after rain.', ref:'1926.651(k)'},
       {id:'ex4', text:'Spoil piles at least 2 ft from edge of excavation.', ref:'1926.651(j)'},
@@ -487,11 +505,11 @@ const OSHA_CATEGORIES = [
     ]
   },
   {
-    id:'scaffolding', name:'Scaffolding', ref:'29 CFR 1926.450–454 / 16VAC25-175', active:true,
+    id:'scaffolding', name:'Scaffolding', ref:'29 CFR 1926.450-454', active:true,
     questions:[
       {id:'sc1', text:'Scaffolding erected by competent/qualified person.', ref:'1926.451(f)(7)'},
       {id:'sc2', text:'Scaffold planks fully planked and secured.', ref:'1926.451(b)'},
-      {id:'sc3', text:'Guardrails on all open sides and ends above 10 ft.', ref:'16VAC25-175-1926.451(g)'},
+      {id:'sc3', text:'Guardrails on all open sides and ends above 10 ft.', ref:'29 CFR 1926.451(g)'},
       {id:'sc4', text:'Scaffold capacity posted or communicated to workers.', ref:'1926.451(a)'},
       {id:'sc5', text:'Scaffold inspected by competent person before each shift.', ref:'1926.451(f)(3)'},
       {id:'sc6', text:'Access/egress provided (ladder, stairway, etc.).', ref:'1926.451(e)'},
@@ -531,9 +549,9 @@ const OSHA_CATEGORIES = [
     ]
   },
   {
-    id:'confinedspace', name:'Confined Space', ref:'29 CFR 1926.1200–1213 / 16VAC25-145', active:false,
+    id:'confinedspace', name:'Confined Space', ref:'29 CFR 1926.1200-1213', active:false,
     questions:[
-      {id:'cs1', text:'Permit-required confined spaces identified and posted.', ref:'16VAC25-145'},
+      {id:'cs1', text:'Permit-required confined spaces identified and posted.', ref:'29 CFR 1926.1203'},
       {id:'cs2', text:'Atmospheric testing performed before entry.', ref:'1926.1203'},
       {id:'cs3', text:'Calibrated gas monitor used and bump-tested today.', ref:'1926.1203(e)'},
       {id:'cs4', text:'Entry permit completed and signed by supervisor.', ref:'1926.1206'},
@@ -1075,9 +1093,13 @@ function renderQuestion(q) {
           ? `<div class="photo-thumb-video" onclick="openLightbox('${q.id}',${i})"><i class="ti ti-player-play"></i></div>`
           : `<img class="photo-thumb" src="${p.data}" onclick="openLightbox('${q.id}',${i})" alt="Photo">`
         ).join('')}
-        <label class="photo-add" title="Add Photo">
-          <input type="file" class="file-input" accept="image/*,video/*" capture="environment" multiple onchange="handleMedia('${q.id}',this)">
-          <i class="ti ti-camera"></i><span>Photo</span>
+        <label class="photo-add" title="Take Photo" style="background:var(--gray1);">
+          <input type="file" class="file-input" accept="image/*" capture="environment" onchange="handleMedia('${q.id}',this)">
+          <i class="ti ti-camera"></i><span>Camera</span>
+        </label>
+        <label class="photo-add" title="Choose from Library">
+          <input type="file" class="file-input" accept="image/*,video/*" multiple onchange="handleMedia('${q.id}',this)">
+          <i class="ti ti-photo"></i><span>Library</span>
         </label>
         <label class="photo-add" title="Add Video" style="border-color:var(--navy3)">
           <input type="file" class="file-input" accept="video/*" capture="environment" onchange="handleMedia('${q.id}',this)">
@@ -1227,6 +1249,7 @@ function updateScore() {
 function showSummary() {
   document.getElementById('screen-audit').style.display = 'none';
   document.getElementById('screen-summary').style.display = 'block';
+  setTimeout(initSigPad, 100);
 
   const allCats = getActiveCats();
   let pass=0, fail=0, na=0, corrected=0, toAssign=[];
@@ -1429,6 +1452,192 @@ function initAC(inputId, onSelect) {
 // ============================================================
 // INIT
 // ============================================================
+// ============================================================
+// SIGNATURE PAD
+// ============================================================
+let sigCanvas = null, sigCtx = null, sigDrawing = false;
+let sigData = null;
+
+function initSigPad() {
+  sigCanvas = document.getElementById('sigCanvas');
+  if (!sigCanvas) return;
+  sigCtx = sigCanvas.getContext('2d');
+  sigCtx.strokeStyle = '#0d1b2a';
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+
+  function getXY(e) {
+    const rect = sigCanvas.getBoundingClientRect();
+    const sx = sigCanvas.width / rect.width;
+    const sy = sigCanvas.height / rect.height;
+    const src = e.touches ? e.touches[0] : e;
+    return { x: (src.clientX - rect.left) * sx, y: (src.clientY - rect.top) * sy };
+  }
+
+  sigCanvas.addEventListener('mousedown', e => { sigDrawing=true; const p=getXY(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); });
+  sigCanvas.addEventListener('mousemove', e => { if(!sigDrawing) return; const p=getXY(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); });
+  sigCanvas.addEventListener('mouseup', () => { sigDrawing=false; sigData=sigCanvas.toDataURL(); });
+  sigCanvas.addEventListener('mouseleave', () => { sigDrawing=false; });
+
+  sigCanvas.addEventListener('touchstart', e => { e.preventDefault(); sigDrawing=true; const p=getXY(e); sigCtx.beginPath(); sigCtx.moveTo(p.x,p.y); }, {passive:false});
+  sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); if(!sigDrawing) return; const p=getXY(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); }, {passive:false});
+  sigCanvas.addEventListener('touchend', () => { sigDrawing=false; sigData=sigCanvas.toDataURL(); });
+}
+
+function clearSig() {
+  if (!sigCtx) return;
+  sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+  sigData = null;
+}
+
+// ============================================================
+// PDF EXPORT — AUDIT REPORT
+// ============================================================
+function exportAuditPDF() {
+  if (!window.jspdf) {
+    showToast('PDF library loading — please wait a moment and try again', 'warning');
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'letter' });
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  let y = 0;
+
+  const NAVY = [13, 27, 42];
+  const GOLD = [201, 146, 42];
+  const GREEN = [30, 132, 73];
+  const RED = [192, 57, 43];
+  const GRAY = [93, 122, 138];
+  const LGRAY = [244, 246, 249];
+
+  function addPage() {
+    doc.addPage();
+    y = 50;
+    doc.setFillColor(...NAVY);
+    doc.rect(0, 0, W, 30, 'F');
+    doc.setTextColor(201, 146, 42);
+    doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.text('INVINCIBLE SAFETY MANAGEMENT — C.T. PURCELL, INC.', 30, 19);
+    doc.text('SAFETY AUDIT REPORT — CONFIDENTIAL', W - 30, 19, { align: 'right' });
+    y = 50;
+  }
+
+  // Header
+  doc.setFillColor(...NAVY);
+  doc.rect(0, 0, W, 90, 'F');
+  doc.setFillColor(201, 146, 42);
+  doc.rect(0, 90, W, 3, 'F');
+  doc.setTextColor(201, 146, 42);
+  doc.setFontSize(20); doc.setFont('helvetica', 'bold');
+  doc.text('SAFETY AUDIT REPORT', 30, 38);
+  doc.setFontSize(10); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(180, 200, 220);
+  doc.text('C.T. Purcell, Inc. — Invincible Safety Management', 30, 56);
+  doc.text('Generated: ' + new Date().toLocaleString(), 30, 70);
+
+  // Audit meta
+  const score = document.getElementById('final-score-badge') ? document.getElementById('final-score-badge').textContent : '';
+  y = 110;
+
+  doc.setFillColor(...LGRAY);
+  doc.roundedRect(30, y, W - 60, 60, 4, 4, 'F');
+  doc.setTextColor(...NAVY); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+  doc.text('Site:', 40, y + 16); doc.setFont('helvetica', 'normal'); doc.text(auditMeta.site || 'N/A', 120, y + 16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Date:', 40, y + 30); doc.setFont('helvetica', 'normal'); doc.text(auditMeta.date || 'N/A', 120, y + 30);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Inspector:', 40, y + 44); doc.setFont('helvetica', 'normal'); doc.text(auditMeta.inspector || 'N/A', 120, y + 44);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Score:', W - 160, y + 16); doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...GOLD);
+  doc.setFontSize(16);
+  doc.text(score, W - 80, y + 20);
+
+  y += 75;
+
+  // Signature
+  const canvas = document.getElementById('sigCanvas');
+  if (canvas && sigData) {
+    doc.setFillColor(250, 250, 250);
+    doc.roundedRect(30, y, W - 60, 70, 4, 4, 'F');
+    doc.setDrawColor(...NAVY);
+    doc.roundedRect(30, y, W - 60, 70, 4, 4, 'S');
+    doc.setTextColor(...GRAY); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+    doc.text('INSPECTOR SIGNATURE', 40, y + 14);
+    doc.addImage(sigData, 'PNG', 40, y + 18, 200, 44);
+    doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+    doc.text('Certified per 29 CFR 1926.20 — ' + (auditMeta.inspector || '') + ' — ' + (auditMeta.date || ''), 40, y + 66);
+    y += 82;
+  }
+
+  // Questions by category
+  const cats = [...categories, ...customCategories].filter(c => c.active);
+  cats.forEach(cat => {
+    const qs = cat.questions || [];
+    if (!qs.length) return;
+
+    if (y > H - 100) addPage();
+
+    // Category header
+    doc.setFillColor(...NAVY);
+    doc.roundedRect(30, y, W - 60, 20, 3, 3, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+    doc.text((cat.name || 'Category').toUpperCase(), 38, y + 13);
+    y += 26;
+
+    // Table of questions
+    const tableData = qs.map(q => {
+      const ans = answers[q.id] || {};
+      const result = ans.result ? ans.result.toUpperCase() : 'N/A';
+      const note = ans.generalNote || ans.note || '';
+      const resolution = ans.resolution === 'corrected' ? 'Corrected on site' : ans.resolution === 'assign' ? 'Assigned: ' + (ans.assignTo || '') : '';
+      return [q.text || '', result, resolution || note || ''];
+    });
+
+    doc.autoTable({
+      startY: y,
+      head: [['Question', 'Result', 'Notes / Resolution']],
+      body: tableData,
+      theme: 'grid',
+      margin: { left: 30, right: 30 },
+      headStyles: { fillColor: [36, 60, 87], textColor: 255, fontSize: 8, fontStyle: 'bold' },
+      bodyStyles: { fontSize: 7.5, cellPadding: 4 },
+      columnStyles: {
+        0: { cellWidth: 260 },
+        1: { cellWidth: 45, halign: 'center', fontStyle: 'bold' },
+        2: { cellWidth: 'auto' }
+      },
+      didParseCell: function(data) {
+        if (data.column.index === 1 && data.section === 'body') {
+          const val = data.cell.text[0];
+          if (val === 'PASS') { data.cell.styles.textColor = [30, 132, 73]; }
+          else if (val === 'FAIL') { data.cell.styles.textColor = [192, 57, 43]; }
+          else { data.cell.styles.textColor = [93, 122, 138]; }
+        }
+      }
+    });
+    y = doc.lastAutoTable.finalY + 12;
+  });
+
+  // Footer on all pages
+  const pageCount = doc.internal.getNumberOfPages();
+  for (let p = 1; p <= pageCount; p++) {
+    doc.setPage(p);
+    doc.setFillColor(...NAVY);
+    doc.rect(0, H - 24, W, 24, 'F');
+    doc.setTextColor(150, 170, 190); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+    doc.text('C.T. Purcell, Inc. — Invincible Safety Management — CONFIDENTIAL', 30, H - 8);
+    doc.text('Page ' + p + ' of ' + pageCount, W - 30, H - 8, { align: 'right' });
+  }
+
+  const filename = 'Safety_Audit_' + (auditMeta.site || 'Report').replace(/[^a-zA-Z0-9]/g, '_') + '_' + (auditMeta.date || new Date().toISOString().slice(0, 10)) + '.pdf';
+  doc.save(filename);
+  showToast('PDF saved! Check your downloads.', 'success');
+}
+
 init();
 </script>
 
