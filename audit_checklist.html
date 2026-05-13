@@ -225,7 +225,7 @@ function signOut() {
   </div>
   <div class="header-actions">
     <div id="conn-status" style="font-size:11px;color:var(--gray4);display:flex;align-items:center;gap:5px;margin-right:8px">
-      <button onclick="signOut()" style="background:#c0392b;color:white;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">⏻ Sign Out</button>
+      
     <div id="conn-dot" style="width:7px;height:7px;border-radius:50%;background:var(--gray4)"></div>
       <span id="conn-text">Connecting...</span>
     </div>
@@ -408,7 +408,7 @@ function signOut() {
   <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:14px;">
     <button class="btn btn-outline" onclick="location.reload()"><i class="ti ti-refresh"></i> New Audit</button>
     <button class="btn btn-outline" onclick="exportAuditPDF()" style="color:#c0392b;border-color:#c0392b;"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
-    <button class="btn btn-gold" id="submit-btn" onclick="submitAudit()"><i class="ti ti-device-floppy"></i> Save & Sign Audit</button>
+    <button class="btn btn-gold" id="submit-btn" onclick="(function(b){withSpinner(b,submitAudit)})(this)"><i class="ti ti-device-floppy"></i> Save & Sign Audit</button>
   </div>
 </div>
 
@@ -1324,6 +1324,33 @@ function showSummary() {
 // ============================================================
 // SUBMIT AUDIT TO DATABASE
 // ============================================================
+
+// ============================================================
+// GLOBAL: Prevent double-tap on any save button
+// Usage: wrap async function body with withSpinner(btn, async () => { ... })
+// ============================================================
+async function withSpinner(btn, fn) {
+  if (!btn || btn.disabled) return; // already running
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:_spin 0.7s linear infinite;vertical-align:middle;margin-right:5px;"></span>Saving...';
+  try {
+    await fn();
+  } catch(e) {
+    console.error('Save error:', e);
+    if (typeof showToast === 'function') showToast('Error saving — please try again', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+if (!document.getElementById('_spin_style')) {
+  const s = document.createElement('style');
+  s.id = '_spin_style';
+  s.textContent = '@keyframes _spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
+}
+
 async function submitAudit() {
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;

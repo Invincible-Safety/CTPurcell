@@ -810,7 +810,7 @@ function renderTime(){
         </div>
         <div class="form-group mb-12"><label class="form-label">Description</label><input type="text" class="form-control" id="timer-desc" placeholder="What are you working on?"></div>
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px"><input type="checkbox" id="timer-bill" checked><label style="font-size:13px;font-weight:600;color:var(--gray5)">Billable time</label></div>
-        <button class="btn btn-primary w-full" onclick="saveTimerEntry()"><i class="ti ti-device-floppy"></i> Save Entry to Database</button>
+        <button class="btn btn-primary w-full" onclick="(function(b){withSpinner(b,saveTimerEntry)})(this)"><i class="ti ti-device-floppy"></i> Save Entry to Database</button>
       </div>
       <div class="card">
         <div class="card-hd"><div class="card-title">Time by Category</div></div>
@@ -890,6 +890,33 @@ function resetTimer(){
   const stopWrap=document.getElementById('timer-stop-wrap');
   if(stopWrap) stopWrap.style.display='none';
 }
+
+// ============================================================
+// GLOBAL: Prevent double-tap on any save button
+// Usage: wrap async function body with withSpinner(btn, async () => { ... })
+// ============================================================
+async function withSpinner(btn, fn) {
+  if (!btn || btn.disabled) return; // already running
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:_spin 0.7s linear infinite;vertical-align:middle;margin-right:5px;"></span>Saving...';
+  try {
+    await fn();
+  } catch(e) {
+    console.error('Save error:', e);
+    if (typeof showToast === 'function') showToast('Error saving — please try again', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+if (!document.getElementById('_spin_style')) {
+  const s = document.createElement('style');
+  s.id = '_spin_style';
+  s.textContent = '@keyframes _spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
+}
+
 async function saveTimerEntry(){const hrs=Math.round((timerElapsed/3600000)*100)/100;if(hrs<0.01){alert('Start the timer first!');return;}const desc=document.getElementById('timer-desc');const bill=document.getElementById('timer-bill');// Record final stop time if still running
   if(timerRunning) { timerStopWall = new Date(); }
   const startTimeStr = timerStartWall ? timerStartWall.toISOString() : null;
@@ -1044,7 +1071,7 @@ function showModal(title, body, saveFn){
     </div>
   </div>` : '';
 
-  mc.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-hd"><div class="modal-title">${title}</div><button class="btn btn-outline btn-sm" onclick="closeModal()"><i class="ti ti-x"></i></button></div><div class="modal-body">${draftBar}${body}</div><div class="modal-foot"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold" id="save-btn" onclick="saveModal()"><i class="ti ti-device-floppy"></i> Save to Database</button></div></div></div>`;
+  mc.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-hd"><div class="modal-title">${title}</div><button class="btn btn-outline btn-sm" onclick="closeModal()"><i class="ti ti-x"></i></button></div><div class="modal-body">${draftBar}${body}</div><div class="modal-foot"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-gold" id="save-btn" onclick="(function(b){withSpinner(b,saveModal)})(this)"><i class="ti ti-device-floppy"></i> Save to Database</button></div></div></div>`;
   window._saveFn = saveFn;
   window._modalTitle = title;
   window._currentDraft = draft;

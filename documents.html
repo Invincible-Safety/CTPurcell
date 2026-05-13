@@ -202,7 +202,7 @@ textarea.form-control{resize:vertical;min-height:70px}
   </div>
   <div style="display:flex;gap:8px;align-items:center">
     <div style="font-size:11px;color:var(--gray4);display:flex;align-items:center;gap:5px">
-      <button onclick="signOut()" style="background:#c0392b;color:white;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">⏻ Sign Out</button>
+      
     <div id="conn-dot" style="width:7px;height:7px;border-radius:50%;background:var(--gray4)"></div>
       <span id="conn-text">Connecting...</span>
     </div>
@@ -348,7 +348,7 @@ textarea.form-control{resize:vertical;min-height:70px}
 
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap">
       <button class="btn btn-outline" onclick="clearEap()"><i class="ti ti-refresh"></i> Clear</button>
-      <button class="btn btn-navy" onclick="saveEap()"><i class="ti ti-device-floppy"></i> Save EAP</button>
+      <button class="btn btn-navy" onclick="(function(b){withSpinner(b,saveEap)})(this)"><i class="ti ti-device-floppy"></i> Save EAP</button>
       <button class="btn btn-gold" onclick="exportEapPDF()"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
     </div>
   </div>
@@ -509,7 +509,7 @@ textarea.form-control{resize:vertical;min-height:70px}
 
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap">
       <button class="btn btn-outline" onclick="clearTaha()"><i class="ti ti-refresh"></i> Clear</button>
-      <button class="btn btn-navy" onclick="saveTaha()"><i class="ti ti-device-floppy"></i> Save AHA</button>
+      <button class="btn btn-navy" onclick="(function(b){withSpinner(b,saveTaha)})(this)"><i class="ti ti-device-floppy"></i> Save AHA</button>
       <button class="btn btn-gold" onclick="exportTahaPDF()"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
     </div>
   </div>
@@ -585,7 +585,7 @@ textarea.form-control{resize:vertical;min-height:70px}
 
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:20px;flex-wrap:wrap">
       <button class="btn btn-outline" onclick="clearEaha()"><i class="ti ti-refresh"></i> Clear</button>
-      <button class="btn btn-navy" onclick="saveEaha()"><i class="ti ti-device-floppy"></i> Save AHA</button>
+      <button class="btn btn-navy" onclick="(function(b){withSpinner(b,saveEaha)})(this)"><i class="ti ti-device-floppy"></i> Save AHA</button>
       <button class="btn btn-gold" onclick="exportEahaPDF()"><i class="ti ti-file-type-pdf"></i> Export PDF</button>
     </div>
   </div>
@@ -867,6 +867,33 @@ function getChecked(gridId){
 // ============================================================
 // SAVE DOCUMENTS TO DB
 // ============================================================
+
+// ============================================================
+// GLOBAL: Prevent double-tap on any save button
+// Usage: wrap async function body with withSpinner(btn, async () => { ... })
+// ============================================================
+async function withSpinner(btn, fn) {
+  if (!btn || btn.disabled) return; // already running
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:_spin 0.7s linear infinite;vertical-align:middle;margin-right:5px;"></span>Saving...';
+  try {
+    await fn();
+  } catch(e) {
+    console.error('Save error:', e);
+    if (typeof showToast === 'function') showToast('Error saving — please try again', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+if (!document.getElementById('_spin_style')) {
+  const s = document.createElement('style');
+  s.id = '_spin_style';
+  s.textContent = '@keyframes _spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
+}
+
 async function saveEap(){
   const projSel=document.getElementById('eap-project');
   const projOpt=projSel.options[projSel.selectedIndex];

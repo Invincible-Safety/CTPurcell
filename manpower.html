@@ -248,7 +248,7 @@ function signOut() {
     <button class="btn btn-outline btn-sm" onclick="changeDate(1)"><i class="ti ti-chevron-right"></i></button>
     <button class="btn btn-outline btn-sm" onclick="goToday()">Today</button>
   </div>
-  <div style="margin-left:auto;display:flex;gap:8px;align-items:center"><button onclick="signOut()" style="background:#c0392b;color:white;border:none;padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;">⏻ Sign Out</button>
+  <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
     <div id="user-selector-wrap" style="display:flex;align-items:center;gap:8px;">
       <div id="user-display" style="font-size:13px;color:#7a9ab8;">Not logged in</div>
       <!-- Fallback selector shown when not logged in -->
@@ -455,6 +455,33 @@ async function loadAssignments() {
   const rows = await dbGet('manpower_assignments', `?date=eq.${currentDate}&order=employee_name`);
   assignments = {};
   rows.forEach(r => { assignments[r.employee_name] = r; });
+}
+
+
+// ============================================================
+// GLOBAL: Prevent double-tap on any save button
+// Usage: wrap async function body with withSpinner(btn, async () => { ... })
+// ============================================================
+async function withSpinner(btn, fn) {
+  if (!btn || btn.disabled) return; // already running
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:_spin 0.7s linear infinite;vertical-align:middle;margin-right:5px;"></span>Saving...';
+  try {
+    await fn();
+  } catch(e) {
+    console.error('Save error:', e);
+    if (typeof showToast === 'function') showToast('Error saving — please try again', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = orig;
+  }
+}
+if (!document.getElementById('_spin_style')) {
+  const s = document.createElement('style');
+  s.id = '_spin_style';
+  s.textContent = '@keyframes _spin { to { transform: rotate(360deg); } }';
+  document.head.appendChild(s);
 }
 
 function setConn(up) {

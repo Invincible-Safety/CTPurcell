@@ -166,6 +166,7 @@ textarea.form-control{resize:vertical;min-height:80px;}
 .day-name{font-weight:700;font-size:14px;}
 .day-hours{font-size:13px;color:var(--gold);font-weight:700;}
 .day-segments{font-size:11px;color:var(--text-light);margin-top:2px;}
+@keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
 <body>
@@ -522,6 +523,10 @@ function renderToday() {
 // START / END DAY
 // ============================================================
 async function startDay() {
+  // Find and disable the button immediately
+  const btn = event?.target?.closest('button');
+  if (btn) { btn.disabled = true; btn.textContent = 'Starting...'; }
+
   todayLog = {
     date: new Date().toISOString().slice(0,10),
     user_name: currentUser || 'Jamie Hamby',
@@ -554,6 +559,12 @@ async function endDay() {
 // STATUS MODAL
 // ============================================================
 function openStatusModal() {
+  // Reset any previously disabled log button
+  setTimeout(() => {
+    const btn = document.getElementById('log-btn');
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Log Status'; }
+  }, 100);
+
   const projectOpts = projects
     .filter(p=>p.name && p.name!=='Unassigned')
     .map(p=>`<option value="${p.name}">${p.name}</option>`).join('');
@@ -617,13 +628,25 @@ async function logStatusChange() {
   if (s?.needsProject && !project) { showToast('Please select a project', 'error'); return; }
   if (s?.needsVendor && !vendor) { showToast('Please enter vendor name', 'error'); return; }
 
-  const seg = { status_id: id, started_at: new Date().toISOString(), project, vendor, note };
-  if (!todayLog.segments) todayLog.segments = [];
-  todayLog.segments.push(seg);
-  await saveTodayDB();
-  closeStatusModal();
-  renderToday();
-  showToast(`${s.icon} ${s.label} logged at ${formatTime(seg.started_at)}`, 'success');
+  // Disable button immediately to prevent double-tap
+  const btn = document.getElementById('log-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:6px;"></span>Saving...';
+  }
+
+  try {
+    const seg = { status_id: id, started_at: new Date().toISOString(), project, vendor, note };
+    if (!todayLog.segments) todayLog.segments = [];
+    todayLog.segments.push(seg);
+    await saveTodayDB();
+    closeStatusModal();
+    renderToday();
+    showToast(`${s.icon} ${s.label} logged at ${formatTime(seg.started_at)}`, 'success');
+  } catch(e) {
+    showToast('Error saving — please try again', 'error');
+    if (btn) { btn.disabled = false; btn.innerHTML = 'Log Status'; }
+  }
 }
 
 function closeStatusModal() {
