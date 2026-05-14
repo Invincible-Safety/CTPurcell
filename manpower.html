@@ -512,7 +512,10 @@ function updateUserDisplay() {
     }
     // Hide dropdown if logged in via session, show if using fallback
     if (dropdown) dropdown.style.display = hasSession ? 'none' : 'inline-block';
-    if (addBtn) addBtn.style.display = canE ? 'inline-flex' : 'none';
+    // Show add button if canEdit OR if fallback mp_user is an authority user
+    const mpUser = localStorage.getItem('mp_user') || '';
+    const hasAuth = canE || AUTHORITY_USERS.includes(mpUser);
+    if (addBtn) addBtn.style.display = hasAuth ? 'inline-flex' : 'none';
   } else {
     // Not logged in at all — show dropdown and prompt
     if (display) { display.style.display = 'none'; }
@@ -642,7 +645,12 @@ async function revokeDelegation() {
 // QUICK ASSIGN — Mobile-friendly way to assign any employee
 // ============================================================
 function openQuickAssign() {
-  if (!canEdit()) { showToast('You do not have permission to move employees', 'danger'); return; }
+  // Allow if logged in via session OR if fallback user selected from dropdown
+  const mpUser = localStorage.getItem('mp_user') || '';
+  if (!canEdit() && !AUTHORITY_USERS.includes(mpUser)) { 
+    showToast('You do not have permission to move employees', 'danger'); 
+    return; 
+  }
   const activeProjects = projects.filter(p => p.status === 'Active' && p.name !== 'Unassigned');
   const unassigned = {id:0, name:'Unassigned', color:'#8899aa'};
   const allProjs = [unassigned, ...activeProjects];
