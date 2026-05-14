@@ -675,7 +675,7 @@ function openQuickAssign() {
           const initials = e.name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
           const colors = ['#1565c0','#1a7a4a','#c0392b','#7b1fa2','#00838f','#f57f17','#4527a0','#e8580a'];
           const color = colors[e.name.charCodeAt(0) % colors.length];
-          return `<div class="qa-emp-row" onclick="selectQAEmployee('${e.name}','${curr?.project_id||0}','${currProj}')" style="padding:11px 14px;border-bottom:1px solid #f0f4f8;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='white'">
+          return `<div class="qa-emp-row" onclick="selectQAEmployee(this)" data-emp-name="${e.name.replace(/'/g,'&#39;')}" data-from-id="${curr?.project_id||0}" data-from-name="${currProj.replace(/'/g,'&#39;')}" style="padding:11px 14px;border-bottom:1px solid #f0f4f8;display:flex;align-items:center;gap:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='white'">
             <div style="width:34px;height:34px;border-radius:50%;background:${color};color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${initials}</div>
             <div style="flex:1;min-width:0;">
               <div style="font-weight:600;font-size:14px;">${e.name}</div>
@@ -690,7 +690,7 @@ function openQuickAssign() {
       <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#7a9ab8;margin-bottom:8px;">Assign to Project:</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
         ${allProjs.map(p => `
-          <div class="proj-select-btn" onclick="selectQAProject(this,'${p.id}','${p.name}')" data-proj-id="${p.id}"
+          <div class="proj-select-btn" onclick="selectQAProject(this)" data-proj-id="${p.id}" data-proj-name="${p.name.replace(/"/g,'&quot;')}"
             style="padding:12px;border-radius:8px;border:2px solid #e0e6ed;cursor:pointer;display:flex;align-items:center;gap:8px;-webkit-tap-highlight-color:transparent;min-height:52px;">
             <div style="width:12px;height:12px;border-radius:50%;background:${p.color||'#8899aa'};flex-shrink:0;"></div>
             <div style="font-size:13px;font-weight:600;">${p.name}</div>
@@ -721,7 +721,10 @@ function filterQAEmps(q) {
   });
 }
 
-function selectQAEmployee(name, fromId, fromName) {
+function selectQAEmployee(el) {
+  const name = el.dataset.empName;
+  const fromId = el.dataset.fromId;
+  const fromName = el.dataset.fromName;
   window._qa.empName = name;
   window._qa.fromId = fromId;
   window._qa.fromName = fromName;
@@ -744,15 +747,15 @@ function selectQAEmployee(name, fromId, fromName) {
   document.getElementById('qa-project-section').scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
-function selectQAProject(el, projId, projName) {
+function selectQAProject(el) {
   document.querySelectorAll('.proj-select-btn').forEach(b => {
     b.style.border = '2px solid #e0e6ed';
     b.style.background = 'white';
   });
   el.style.border = '2px solid #c9922a';
   el.style.background = '#fef9e7';
-  window._qa.destId = parseInt(projId);
-  window._qa.destName = projName;
+  window._qa.destId = parseInt(el.dataset.projId);
+  window._qa.destName = el.dataset.projName;
 }
 
 function filterBoard(q) {
